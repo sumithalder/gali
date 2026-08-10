@@ -5,6 +5,7 @@ let ytPlayer = null;
 let isPlaying = false;
 let isShuffled = false;
 let pollHandle = null;
+let autoPlayEnabled = true;
 
 const el = {
   clock: document.getElementById("clock"),
@@ -85,10 +86,12 @@ function onYouTubeIframeAPIReady() {
     playerVars: {
       listType: "playlist",
       list: PLAYLIST_ID,
+      autoplay: 1,
       controls: 0,
       disablekb: 1,
       modestbranding: 1,
       rel: 0,
+      playsinline: 1,
       origin: window.location.origin,
     },
     events: {
@@ -98,6 +101,15 @@ function onYouTubeIframeAPIReady() {
         updateMeta();
         ytPlayer.setVolume(Number(el.volumeSlider.value));
         setMuteUI(ytPlayer.isMuted());
+        if (autoPlayEnabled) {
+          window.setTimeout(() => {
+            try {
+              ytPlayer.playVideo();
+            } catch (error) {
+              console.warn("Autoplay could not start:", error);
+            }
+          }, 250);
+        }
       },
       onStateChange: (event) => {
         updateMeta();
@@ -105,10 +117,19 @@ function onYouTubeIframeAPIReady() {
           setPlayingUI(true);
           clearInterval(pollHandle);
           pollHandle = setInterval(renderProgress, 500);
-        } else if (
-          event.data === YT.PlayerState.PAUSED ||
-          event.data === YT.PlayerState.ENDED
-        ) {
+        } else if (event.data === YT.PlayerState.ENDED) {
+          setPlayingUI(false);
+          clearInterval(pollHandle);
+          if (autoPlayEnabled) {
+            window.setTimeout(() => {
+              try {
+                ytPlayer.nextVideo();
+              } catch (error) {
+                console.warn("Unable to advance to the next video:", error);
+              }
+            }, 250);
+          }
+        } else if (event.data === YT.PlayerState.PAUSED) {
           setPlayingUI(false);
           clearInterval(pollHandle);
         }
