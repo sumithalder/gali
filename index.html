@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gali — a lane of 90s Bollywood</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;600&family=Poppins:wght@400;500;600;700&family=Baloo+Bhai+2:wght@600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <main class="scene">
+    <img class="bg" src="master_scene.png" alt="Illustrated Indian street corner with a barber shop at dusk" />
+    <div class="grain" aria-hidden="true"></div>
+    <div class="tint" aria-hidden="true"></div>
+    <div class="scrim scrim-top" aria-hidden="true"></div>
+    <div class="scrim scrim-bottom" aria-hidden="true"></div>
+    <div class="dust-layer" id="dustLayer" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="clock-wrap">
+        <svg id="dayIcon" class="day-icon" viewBox="0 0 24 24" aria-hidden="true"></svg>
+        <time class="clock" id="clock">–:––</time>
+      </div>
+
+      <div class="presence" role="status" aria-live="polite">
+        <svg class="presence-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="7.5" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+          <path d="M5.5 20v-1.2a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5V20" fill="none" stroke="currentColor" stroke-width="1.6"
+            stroke-linecap="round" />
+        </svg>
+        <span id="visitCount">–</span> have passed through this gali
+      </div>
+
+      <nav class="streamlinks" aria-label="Elsewhere">
+        <a href="https://x.com/sumitwhodesign" target="_blank" rel="noopener" class="credit">
+          <svg viewBox="0 0 24 24" class="x-icon" aria-hidden="true">
+            <path
+              d="M18.9 2H22l-7.6 8.7L22.9 22h-6.8l-5.3-6.9L4.6 22H1.5l8.1-9.3L1 2h6.9l4.8 6.3L18.9 2zm-2.4 18h1.9L7.6 4h-2l10.9 16z"
+              fill="currentColor" />
+          </svg>
+          made by sumit
+          <svg viewBox="0 0 24 24" class="arrow-icon" aria-hidden="true">
+            <line x1="7" y1="17" x2="17" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <polyline points="8 7 17 7 17 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </a>
+      </nav>
+    </header>
+
+    <div class="hero-title">
+      <div class="hero-title-inner" id="heroTitleInner">
+        <h1 class="hero-hindi" lang="hi">गली</h1>
+        <p class="hero-tag">a little piece of india</p>
+      </div>
+    </div>
+
+    <section class="player" aria-label="Music player">
+      <div class="art" id="art" aria-hidden="true">
+        <div id="ytPlayer"></div>
+        <img src="cd.png" alt="" class="art-disc" />
+      </div>
+
+      <div class="meta">
+        <div class="title-row">
+          <div class="eq" id="eq" aria-hidden="true"><span></span><span></span><span></span></div>
+          <p class="title" id="trackTitle">—</p>
+        </div>
+        <p class="artist" id="trackArtist">—</p>
+
+        <div class="scrubber">
+          <div class="progress" id="progressTrack" role="slider" aria-label="Seek" tabindex="0" aria-valuemin="0"
+            aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="times">
+            <span id="curTime">0:00</span>
+            <span id="totalTime">0:00</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="shuffleBtn" class="ctrl-btn" aria-label="Shuffle" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8" />
+            <line x1="4" y1="20" x2="21" y2="3" />
+            <polyline points="21 16 21 21 16 21" />
+            <line x1="15" y1="15" x2="21" y2="21" />
+            <line x1="4" y1="4" x2="9" y2="9" />
+          </svg>
+        </button>
+        <button id="prevBtn" class="ctrl-btn" aria-label="Previous track">
+          <svg viewBox="0 0 24 24">
+            <path d="M16 6L7 12L16 18Z" fill="currentColor" />
+          </svg>
+        </button>
+        <button id="playBtn" class="ctrl-btn ctrl-btn--primary" aria-label="Play">
+          <svg viewBox="0 0 24 24" id="playIcon">
+            <path d="M7 5l12 7-12 7V5z" fill="currentColor" />
+          </svg>
+        </button>
+        <button id="nextBtn" class="ctrl-btn" aria-label="Next track">
+          <svg viewBox="0 0 24 24">
+            <path d="M8 6L17 12L8 18Z" fill="currentColor" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="volume">
+        <button id="muteBtn" class="ctrl-btn" aria-label="Mute">
+          <svg viewBox="0 0 24 24" id="volumeIcon" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor" stroke="none" />
+            <path d="M16.5 8.5a5 5 0 0 1 0 7" />
+            <path d="M19 6a8 8 0 0 1 0 12" />
+          </svg>
+        </button>
+        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="70" aria-label="Volume" />
+      </div>
+    </section>
+  </main>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
