@@ -257,6 +257,31 @@ const SUN_ICON =
 const MOON_ICON =
   '<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>';
 const dayIcon = document.getElementById("dayIcon");
+const scene = document.querySelector(".scene");
+
+// -- manual day/night scene toggle ------------------------------------------
+// null = follow the real clock; true/false = user override, sticks for the
+// session (the little clock icon up top still always shows the real time).
+const sceneToggle = document.getElementById("sceneToggle");
+const sceneToggleIcon = document.getElementById("sceneToggleIcon");
+const sceneToggleLabel = document.getElementById("sceneToggleLabel");
+let manualIsNight = null;
+
+function applyScene(isNight) {
+  scene.classList.toggle("is-night", isNight);
+  sceneToggleIcon.innerHTML = isNight ? MOON_ICON : SUN_ICON;
+  sceneToggleLabel.textContent = isNight ? "night" : "day";
+  sceneToggle.setAttribute("aria-pressed", String(isNight));
+  sceneToggle.setAttribute(
+    "aria-label",
+    isNight ? "Switch to day" : "Switch to night",
+  );
+}
+
+sceneToggle.addEventListener("click", () => {
+  manualIsNight = !scene.classList.contains("is-night");
+  applyScene(manualIsNight);
+});
 
 function tickClock() {
   const now = new Date();
@@ -265,6 +290,7 @@ function tickClock() {
   const suffix = h >= 12 ? "pm" : "am";
   const isDaytime = h >= 6 && h < 18;
   dayIcon.innerHTML = isDaytime ? SUN_ICON : MOON_ICON;
+  applyScene(manualIsNight === null ? !isDaytime : manualIsNight);
   h = h % 12 || 12;
   el.clock.textContent = `${h}:${m} ${suffix}`;
 }
@@ -329,7 +355,6 @@ const prefersReducedMotion = window.matchMedia(
 ).matches;
 
 if (hasFinePointer && !prefersReducedMotion) {
-  const scene = document.querySelector(".scene");
   const heroTitleInner = document.getElementById("heroTitleInner");
 
   window.addEventListener("mousemove", (e) => {
@@ -431,26 +456,31 @@ const HOTSPOTS = {
   "chai-shop": {
     caption: "The glass is always too hot to hold.",
     image: "assets/chai_reciept.png",
+    imageNight: "assets/chai_night.png",
     audio: "audio/chai-shop.mp3",
   },
   "barber-shop": {
     caption: "The haircut takes twenty minutes. The conversation takes longer.",
     image: "assets/barber_bill.png",
+    imageNight: "assets/barber_night.png",
     audio: "audio/barber.mp3",
   },
   "kirana-store": {
     caption: "You came for biscuits. You left with five things.",
     image: "assets/kirana_bill.png",
+    imageNight: "assets/kirana_night.png",
     audio: "audio/kirana-store.mp3",
   },
   "sleeping-dog": {
     caption: "Doesn't move for anyone.",
     image: "assets/dog_note.png",
+    imageNight: "assets/dog_night.png",
     audio: "audio/sleeping-dog.mp3",
   },
   balcony: {
     caption: "Someone here knows everyone's business.",
     image: "assets/balcony_note.png",
+    imageNight: "assets/balcony_night.png",
     audio: "audio/balcony.mp3",
   },
 };
@@ -473,10 +503,15 @@ function showHotspotCaption(hotspot) {
   const x = rect.left + rect.width / 2;
   const above = rect.top > 140;
 
-  hotspotCaptionImg.src = data.image;
+  const image =
+    scene.classList.contains("is-night") && data.imageNight
+      ? data.imageNight
+      : data.image;
+
+  hotspotCaptionImg.src = image;
   hotspotCaptionImg.alt = data.caption;
-  hotspotCaptionGrain.style.maskImage = `url('${data.image}')`;
-  hotspotCaptionGrain.style.webkitMaskImage = `url('${data.image}')`;
+  hotspotCaptionGrain.style.maskImage = `url('${image}')`;
+  hotspotCaptionGrain.style.webkitMaskImage = `url('${image}')`;
   hotspotCaption.style.left = `${x}px`;
   hotspotCaption.style.top = above
     ? `${rect.top - 6}px`
