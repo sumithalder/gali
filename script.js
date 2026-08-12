@@ -329,16 +329,196 @@ const prefersReducedMotion = window.matchMedia(
 ).matches;
 
 if (hasFinePointer && !prefersReducedMotion) {
-  const bg = document.querySelector(".bg");
+  const scene = document.querySelector(".scene");
   const heroTitleInner = document.getElementById("heroTitleInner");
 
   window.addEventListener("mousemove", (e) => {
     const nx = e.clientX / window.innerWidth - 0.5;
     const ny = e.clientY / window.innerHeight - 0.5;
 
-    bg.style.setProperty("--mx", `${(-nx * 16).toFixed(2)}px`);
-    bg.style.setProperty("--my", `${(-ny * 16).toFixed(2)}px`);
+    scene.style.setProperty("--mx", `${(-nx * 16).toFixed(2)}px`);
+    scene.style.setProperty("--my", `${(-ny * 16).toFixed(2)}px`);
     heroTitleInner.style.setProperty("--tx", `${(nx * 24).toFixed(2)}px`);
     heroTitleInner.style.setProperty("--ty", `${(ny * 24).toFixed(2)}px`);
   });
 }
+
+// -- ambient street bed -----------------------------------------------------
+// Starts on the first user gesture (browser autoplay policy) and stays low,
+// as texture behind the music player rather than a second soundtrack.
+const ambientBed = document.getElementById("ambientBed");
+const AMBIENT_VOLUME = 0.16;
+const AMBIENT_DUCK = 0.05;
+let ambientUnlocked = false;
+let ambientMuted = false;
+
+const fadeHandles = new WeakMap();
+
+function fadeVolume(el, target, duration) {
+  const running = fadeHandles.get(el);
+  if (running) cancelAnimationFrame(running);
+  const start = el.volume;
+  const startTime = performance.now();
+  function step(now) {
+    const t = Math.min(1, Math.max(0, (now - startTime) / duration));
+    el.volume = start + (target - start) * t;
+    if (t < 1) fadeHandles.set(el, requestAnimationFrame(step));
+  }
+  fadeHandles.set(el, requestAnimationFrame(step));
+}
+
+function unlockAmbient() {
+  if (ambientUnlocked) return;
+  ambientUnlocked = true;
+  ambientBed.volume = 0;
+  ambientBed
+    .play()
+    .then(() => fadeVolume(ambientBed, ambientMuted ? 0 : AMBIENT_VOLUME, 500))
+    .catch(() => {
+      ambientUnlocked = false;
+    });
+}
+
+function duckAmbient() {
+  if (!ambientUnlocked || ambientMuted) return;
+  fadeVolume(ambientBed, AMBIENT_DUCK, 200);
+}
+
+function restoreAmbient() {
+  if (!ambientUnlocked || ambientMuted) return;
+  fadeVolume(ambientBed, AMBIENT_VOLUME, 700);
+}
+
+// -- ambient sound toggle ---------------------------------------------------
+// Stroke-only (not filled) to match the topbar's existing icon language
+// (day-icon, presence-icon) — a filled speaker glyph reads as a solid blob
+// at this small size instead of a recognizable icon.
+const ambientToggle = document.getElementById("ambientToggle");
+const ambientIcon = document.getElementById("ambientIcon");
+const AMBIENT_VOLUME_ICON =
+  '<path d="M4 9h3.2L12 5v14l-4.8-4H4z"/><path d="M16 9.2a4 4 0 0 1 0 5.6"/>';
+const AMBIENT_MUTE_ICON =
+  '<path d="M4 9h3.2L12 5v14l-4.8-4H4z"/><line x1="15" y1="9" x2="19.5" y2="13.5"/><line x1="19.5" y1="9" x2="15" y2="13.5"/>';
+
+function setAmbientToggleUI(muted) {
+  ambientIcon.innerHTML = muted ? AMBIENT_MUTE_ICON : AMBIENT_VOLUME_ICON;
+  ambientToggle.setAttribute("aria-pressed", String(muted));
+  ambientToggle.setAttribute(
+    "aria-label",
+    muted ? "Unmute ambient sound" : "Mute ambient sound",
+  );
+}
+
+setAmbientToggleUI(ambientMuted);
+
+ambientToggle.addEventListener("click", () => {
+  ambientMuted = !ambientMuted;
+  setAmbientToggleUI(ambientMuted);
+
+  if (!ambientUnlocked) {
+    unlockAmbient();
+    return;
+  }
+  fadeVolume(ambientBed, ambientMuted ? 0 : AMBIENT_VOLUME, 400);
+});
+
+["pointerdown", "keydown"].forEach((evt) =>
+  document.addEventListener(evt, unlockAmbient, { once: true }),
+);
+
+// -- discoverable street hotspots (curiosity is the navigation) -----------
+const HOTSPOTS = {
+  "chai-shop": {
+    caption: "The glass is always too hot to hold.",
+    audio: "audio/chai-shop.mp3",
+  },
+  "barber-shop": {
+    caption: "The haircut takes twenty minutes. The conversation takes longer.",
+    audio: "audio/barber.mp3",
+  },
+  "kirana-store": {
+    caption: "You came for biscuits. You left with five things.",
+    audio: "audio/kirana-store.mp3",
+  },
+  "sleeping-dog": {
+    caption: "Doesn't move for anyone.",
+    audio: "audio/sleeping-dog.mp3",
+  },
+  balcony: {
+    caption: "Someone here knows everyone's business.",
+    audio: "audio/balcony.mp3",
+  },
+};
+
+const hotspotCaption = document.getElementById("hotspotCaption");
+const hotspotCaptionText = document.getElementById("hotspotCaptionText");
+const hotspotEls = document.querySelectorAll(".hotspot");
+const hotspotAudioCache = {};
+
+function getHotspotAudio(id, src) {
+  if (!hotspotAudioCache[id]) hotspotAudioCache[id] = new Audio(src);
+  return hotspotAudioCache[id];
+}
+
+function showHotspotCaption(hotspot) {
+  const data = HOTSPOTS[hotspot.dataset.id];
+  if (!data) return;
+  const rect = hotspot.querySelector(".hotspot-hit").getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const above = rect.top > 140;
+
+  hotspotCaptionText.textContent = data.caption;
+  hotspotCaption.style.left = `${x}px`;
+  hotspotCaption.style.top = above
+    ? `${rect.top - 12}px`
+    : `${rect.bottom + 12}px`;
+  hotspotCaption.style.transform = above
+    ? "translate(-50%, -100%)"
+    : "translate(-50%, 12px)";
+  hotspotCaption.classList.add("is-visible");
+}
+
+function hideHotspotCaption() {
+  hotspotCaption.classList.remove("is-visible");
+}
+
+const HOTSPOT_VOLUME = 0.85;
+const HOTSPOT_FADE_MS = 450;
+
+function triggerHotspot(hotspot) {
+  const data = HOTSPOTS[hotspot.dataset.id];
+  if (!data) return;
+
+  hotspot.classList.remove("is-active");
+  void hotspot.offsetWidth;
+  hotspot.classList.add("is-active");
+
+  if (!data.audio) return;
+  const audio = getHotspotAudio(hotspot.dataset.id, data.audio);
+  duckAmbient();
+  audio.currentTime = 0;
+  audio.volume = 0;
+  audio
+    .play()
+    .then(() => {
+      fadeVolume(audio, HOTSPOT_VOLUME, HOTSPOT_FADE_MS);
+      audio.addEventListener("ended", restoreAmbient, { once: true });
+    })
+    .catch(() => restoreAmbient());
+}
+
+hotspotEls.forEach((hotspot) => {
+  hotspot.addEventListener("pointerenter", () => showHotspotCaption(hotspot));
+  hotspot.addEventListener("pointerleave", hideHotspotCaption);
+  hotspot.addEventListener("focus", () => showHotspotCaption(hotspot));
+  hotspot.addEventListener("blur", hideHotspotCaption);
+  hotspot.addEventListener("click", () => triggerHotspot(hotspot));
+  hotspot.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      triggerHotspot(hotspot);
+    }
+  });
+});
+
+window.addEventListener("resize", hideHotspotCaption);

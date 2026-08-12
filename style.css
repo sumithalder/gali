@@ -1,5 +1,6 @@
 :root {
   --accent: #e2543a;
+  --neon: #39ff14;
   --fg: #f5f1e8;
   --fg-dim: rgba(245, 241, 232, .68);
   --fg-faint: rgba(245, 241, 232, .42);
@@ -9,7 +10,7 @@
   --radius-lg: 20px;
   --radius-md: 12px;
   --radius-sm: 8px;
-  --font-ui: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-ui: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 * {
@@ -148,6 +149,110 @@ body {
   }
 }
 
+/* ---------- discoverable hotspots ---------- */
+.hotspot-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1.06);
+  transition: transform .4s ease-out;
+}
+
+.hotspot {
+  cursor: pointer;
+  pointer-events: auto;
+  outline: none;
+}
+
+.hotspot-hit {
+  fill: transparent;
+}
+
+.hotspot-dot {
+  fill: var(--accent);
+  opacity: .34;
+  filter: drop-shadow(0 0 5px rgba(226, 84, 58, .65));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hotspotBreathe 2.8s ease-in-out infinite;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+@keyframes hotspotBreathe {
+
+  0%,
+  100% {
+    opacity: .3;
+    transform: scale(.85);
+  }
+
+  50% {
+    opacity: .6;
+    transform: scale(1.05);
+  }
+}
+
+.hotspot:hover .hotspot-dot,
+.hotspot:focus-visible .hotspot-dot {
+  opacity: .95;
+  transform: scale(1.35);
+  animation-play-state: paused;
+}
+
+.hotspot:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 6px;
+  border-radius: 50%;
+}
+
+.hotspot.is-active .hotspot-dot {
+  animation: hotspotPulseOut .6s ease-out;
+}
+
+@keyframes hotspotPulseOut {
+  0% {
+    opacity: .95;
+    transform: scale(1.35);
+  }
+
+  100% {
+    opacity: .5;
+    transform: scale(1.9);
+  }
+}
+
+.hotspot-caption {
+  position: fixed;
+  z-index: 4;
+  max-width: 220px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+  opacity: 0;
+  transform: translate(-50%, 6px);
+  transition: opacity .2s ease-out, transform .2s ease-out;
+  pointer-events: none;
+}
+
+.hotspot-caption.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.hotspot-caption p {
+  margin: 0;
+  font-family: 'Noto Sans Devanagari', var(--font-ui);
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--fg);
+}
+
 .scrim {
   position: fixed;
   left: 0;
@@ -203,11 +308,53 @@ body {
   filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .45));
 }
 
+.ambient-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--fg-dim);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color .15s ease;
+}
+
+.ambient-toggle svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .45));
+}
+
+.ambient-toggle-label {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  color: var(--fg);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .5);
+  white-space: nowrap;
+}
+
+.ambient-toggle:hover {
+  color: var(--fg);
+}
+
+.ambient-toggle:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .presence {
   justify-self: center;
 }
 
 .streamlinks {
+  grid-column: 3;
   justify-self: end;
 }
 
@@ -235,7 +382,8 @@ body {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  color: var(--accent);
+  color: var(--neon);
+  filter: drop-shadow(0 0 4px var(--neon));
 }
 
 .streamlinks {
@@ -307,23 +455,30 @@ body {
 
 .hero-hindi {
   margin: 0;
-  font-family: 'Baloo Bhai 2', 'Noto Sans Devanagari', var(--font-ui);
-  font-weight: 700;
-  font-size: clamp(110px, 17vw, 224px);
+  font-family: 'Yatra One', 'Noto Sans Devanagari', var(--font-ui);
+  font-weight: 400;
+  font-size: clamp(130px, 20vw, 270px);
   line-height: 1;
   color: var(--fg);
   text-shadow: 0 0 60px rgba(226, 84, 58, .35), 0 0 120px rgba(226, 84, 58, .2);
 }
 
 .hero-tag {
-  margin: -10px auto 0;
+  margin: -12px auto 0;
   max-width: 100%;
-  font-family: var(--font-ui);
-  font-size: clamp(13px, 1.8vw, 18px);
+  font-family: 'Space Grotesk', var(--font-ui);
+  font-size: clamp(16px, 2.2vw, 22px);
   font-weight: 600;
   letter-spacing: .34em;
   text-transform: uppercase;
   color: var(--fg-dim);
+}
+
+/* ---------- tablet ---------- */
+@media (min-width: 561px) and (max-width: 1024px) {
+  .hero-hindi {
+    font-size: clamp(180px, 25vw, 210px);
+  }
 }
 
 /* ---------- player ---------- */
@@ -664,7 +819,7 @@ iframe#ytPlayer {
   }
 
   .hero-hindi {
-    font-size: 120px;
+    font-size: 170px;
   }
 
   .volume-slider {
@@ -679,7 +834,16 @@ iframe#ytPlayer {
     display: none;
   }
 
+  .ambient-toggle-label {
+    display: none;
+  }
+
   .topbar {
     grid-template-columns: auto 1fr auto;
+  }
+
+  .hotspot-caption {
+    max-width: 70vw;
+    font-size: 12px;
   }
 }
