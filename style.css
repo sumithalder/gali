@@ -44,6 +44,15 @@ body {
   transition: transform .4s ease-out;
 }
 
+.bg-night {
+  opacity: 0;
+  transition: opacity 2.2s cubic-bezier(.16, 1, .3, 1), transform .4s ease-out;
+}
+
+.scene.is-night .bg-night {
+  opacity: 1;
+}
+
 .grain {
   position: fixed;
   inset: 0;
@@ -102,6 +111,13 @@ body {
   background: linear-gradient(160deg, #3a180e, #0a0605);
   mix-blend-mode: multiply;
   opacity: .35;
+  transition: opacity 2.2s cubic-bezier(.16, 1, .3, 1);
+}
+
+/* the night image is already dark on its own — the dusk tint tuned for the
+   bright day image just muddies it further, so ease off here */
+.scene.is-night .tint {
+  opacity: .12;
 }
 
 .dust-layer {
@@ -911,5 +927,11 @@ iframe#ytPlayer {
   .hotspot-caption img {
     max-width: 45vw;
     max-height: 220px;
+  }
+
+  .hotspot-layer,
+  .hotspot-caption,
+  .explore-hint {
+    display: none;
   }
 }

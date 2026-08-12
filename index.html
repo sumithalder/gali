@@ -16,7 +16,8 @@
 <body>
 
   <main class="scene">
-    <img class="bg" src="master_scene.png" alt="Illustrated Indian street corner with a barber shop at dusk" />
+    <img class="bg bg-day" src="master_scene.png" alt="Illustrated Indian street corner with a barber shop at dusk" />
+    <img class="bg bg-night" src="night_scene.png" alt="" aria-hidden="true" />
     <div class="grain" aria-hidden="true"></div>
     <div class="tint" aria-hidden="true"></div>
     <div class="scrim scrim-top" aria-hidden="true"></div>
@@ -61,6 +62,10 @@
           <svg viewBox="0 0 24 24" id="ambientIcon" fill="none" stroke="currentColor" stroke-width="1.8"
             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
           <span class="ambient-toggle-label">ambience</span>
+        </button>
+        <button id="sceneToggle" class="ambient-toggle" aria-label="Switch to day" aria-pressed="false">
+          <svg viewBox="0 0 24 24" id="sceneToggleIcon" aria-hidden="true"></svg>
+          <span class="ambient-toggle-label" id="sceneToggleLabel">night</span>
         </button>
       </div>
 
