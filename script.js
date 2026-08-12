@@ -430,28 +430,34 @@ ambientToggle.addEventListener("click", () => {
 const HOTSPOTS = {
   "chai-shop": {
     caption: "The glass is always too hot to hold.",
+    image: "assets/chai_reciept.png",
     audio: "audio/chai-shop.mp3",
   },
   "barber-shop": {
     caption: "The haircut takes twenty minutes. The conversation takes longer.",
+    image: "assets/barber_bill.png",
     audio: "audio/barber.mp3",
   },
   "kirana-store": {
     caption: "You came for biscuits. You left with five things.",
+    image: "assets/kirana_bill.png",
     audio: "audio/kirana-store.mp3",
   },
   "sleeping-dog": {
     caption: "Doesn't move for anyone.",
+    image: "assets/dog_note.png",
     audio: "audio/sleeping-dog.mp3",
   },
   balcony: {
     caption: "Someone here knows everyone's business.",
+    image: "assets/balcony_note.png",
     audio: "audio/balcony.mp3",
   },
 };
 
 const hotspotCaption = document.getElementById("hotspotCaption");
-const hotspotCaptionText = document.getElementById("hotspotCaptionText");
+const hotspotCaptionImg = document.getElementById("hotspotCaptionImg");
+const hotspotCaptionGrain = document.getElementById("hotspotCaptionGrain");
 const hotspotEls = document.querySelectorAll(".hotspot");
 const hotspotAudioCache = {};
 
@@ -463,18 +469,19 @@ function getHotspotAudio(id, src) {
 function showHotspotCaption(hotspot) {
   const data = HOTSPOTS[hotspot.dataset.id];
   if (!data) return;
-  const rect = hotspot.querySelector(".hotspot-hit").getBoundingClientRect();
+  const rect = hotspot.querySelector(".hotspot-dot").getBoundingClientRect();
   const x = rect.left + rect.width / 2;
   const above = rect.top > 140;
 
-  hotspotCaptionText.textContent = data.caption;
+  hotspotCaptionImg.src = data.image;
+  hotspotCaptionImg.alt = data.caption;
+  hotspotCaptionGrain.style.maskImage = `url('${data.image}')`;
+  hotspotCaptionGrain.style.webkitMaskImage = `url('${data.image}')`;
   hotspotCaption.style.left = `${x}px`;
   hotspotCaption.style.top = above
-    ? `${rect.top - 12}px`
-    : `${rect.bottom + 12}px`;
-  hotspotCaption.style.transform = above
-    ? "translate(-50%, -100%)"
-    : "translate(-50%, 12px)";
+    ? `${rect.top - 6}px`
+    : `${rect.bottom + 6}px`;
+  hotspotCaption.classList.toggle("is-above", above);
   hotspotCaption.classList.add("is-visible");
 }
 
@@ -482,7 +489,7 @@ function hideHotspotCaption() {
   hotspotCaption.classList.remove("is-visible");
 }
 
-const HOTSPOT_VOLUME = 0.85;
+const HOTSPOT_VOLUME = 0.95;
 const HOTSPOT_FADE_MS = 450;
 
 function triggerHotspot(hotspot) {
@@ -522,3 +529,34 @@ hotspotEls.forEach((hotspot) => {
 });
 
 window.addEventListener("resize", hideHotspotCaption);
+
+// -- explore hint (one-time nudge toward the hotspots) ----------------------
+const exploreHint = document.getElementById("exploreHint");
+const EXPLORE_HINT_SEEN_KEY = "gali-explore-hint-seen";
+
+if (exploreHint) {
+  if (localStorage.getItem(EXPLORE_HINT_SEEN_KEY)) {
+    exploreHint.remove();
+  } else {
+    const showTimer = setTimeout(
+      () => exploreHint.classList.add("is-visible"),
+      1600,
+    );
+
+    function dismissExploreHint() {
+      clearTimeout(showTimer);
+      clearTimeout(autoHideTimer);
+      exploreHint.classList.remove("is-visible");
+      localStorage.setItem(EXPLORE_HINT_SEEN_KEY, "1");
+    }
+
+    const autoHideTimer = setTimeout(dismissExploreHint, 12000);
+
+    hotspotEls.forEach((hotspot) => {
+      hotspot.addEventListener("pointerenter", dismissExploreHint, {
+        once: true,
+      });
+      hotspot.addEventListener("focus", dismissExploreHint, { once: true });
+    });
+  }
+}
