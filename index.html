@@ -47,7 +47,8 @@
     </svg>
 
     <div class="hotspot-caption" id="hotspotCaption" role="status" aria-live="polite">
-      <p id="hotspotCaptionText"></p>
+      <img id="hotspotCaptionImg" src="" alt="" />
+      <div class="hotspot-caption-grain" id="hotspotCaptionGrain" aria-hidden="true"></div>
     </div>
 
     <audio id="ambientBed" src="audio/ambient-sound.mp3" loop preload="auto"></audio>
@@ -94,6 +95,13 @@
         <h1 class="hero-hindi" lang="hi">गली</h1>
         <p class="hero-tag">a little piece of india</p>
       </div>
+    </div>
+
+    <div class="explore-hint" id="exploreHint" role="status">
+      <svg class="explore-hint-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z" fill="currentColor" />
+      </svg>
+      <span>look around while you listen</span>
     </div>
 
     <section class="player" aria-label="Music player">
