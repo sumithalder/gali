@@ -372,8 +372,8 @@ if (hasFinePointer && !prefersReducedMotion) {
 // Starts on the first user gesture (browser autoplay policy) and stays low,
 // as texture behind the music player rather than a second soundtrack.
 const ambientBed = document.getElementById("ambientBed");
-const AMBIENT_VOLUME = 0.16;
-const AMBIENT_DUCK = 0.05;
+const AMBIENT_VOLUME = 0.05;
+const AMBIENT_DUCK = 0.025;
 let ambientUnlocked = false;
 let ambientMuted = false;
 
@@ -496,6 +496,14 @@ function getHotspotAudio(id, src) {
   return hotspotAudioCache[id];
 }
 
+// Only the chai stall stays "open" once the street goes quiet for the
+// night — everything else is closed up, so no click prompt or sound then.
+const OPEN_AT_NIGHT = "chai-shop";
+
+function isClosedTonight(id) {
+  return scene.classList.contains("is-night") && id !== OPEN_AT_NIGHT;
+}
+
 function showHotspotCaption(hotspot) {
   const data = HOTSPOTS[hotspot.dataset.id];
   if (!data) return;
@@ -517,6 +525,10 @@ function showHotspotCaption(hotspot) {
     ? `${rect.top - 6}px`
     : `${rect.bottom + 6}px`;
   hotspotCaption.classList.toggle("is-above", above);
+  hotspotCaption.classList.toggle(
+    "no-hint",
+    isClosedTonight(hotspot.dataset.id),
+  );
   hotspotCaption.classList.add("is-visible");
 }
 
@@ -524,7 +536,7 @@ function hideHotspotCaption() {
   hotspotCaption.classList.remove("is-visible");
 }
 
-const HOTSPOT_VOLUME = 0.95;
+const HOTSPOT_VOLUME = 0.3;
 const HOTSPOT_FADE_MS = 450;
 
 function triggerHotspot(hotspot) {
@@ -535,7 +547,7 @@ function triggerHotspot(hotspot) {
   void hotspot.offsetWidth;
   hotspot.classList.add("is-active");
 
-  if (!data.audio) return;
+  if (!data.audio || isClosedTonight(hotspot.dataset.id)) return;
   const audio = getHotspotAudio(hotspot.dataset.id, data.audio);
   duckAmbient();
   audio.currentTime = 0;
