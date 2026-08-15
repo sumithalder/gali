@@ -8,6 +8,7 @@ const firebaseConfig = {
   storageBucket: "gali-5bcca.firebasestorage.app",
   messagingSenderId: "475065648992",
   appId: "1:475065648992:web:cc17cf82172d50ceab4005",
+  measurementId: "G-H4PJ62265P",
 };
 
 const app = initializeApp(firebaseConfig);
